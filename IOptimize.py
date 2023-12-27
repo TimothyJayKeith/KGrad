@@ -28,8 +28,8 @@ def newton(funcs, guess, iters=50):
             x = x - np.matmul(np.linalg.inv(dmatrix), [f(*x) for f in funcs])
     except TypeError:
         for i in range(iters):
-            df = TD.oderiv1(f, x)
-            x = x - f(x)/df
+            df = TD.oderiv1(funcs, x)
+            x = x - funcs(x)/df
     return x
 
 if __name__ == "__main__":
