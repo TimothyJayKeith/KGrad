@@ -1,5 +1,5 @@
-from decimal import DivisionByZero
 import numpy as np
+from decimal import DivisionByZero
 
 class dual(object):
     """
@@ -15,57 +15,55 @@ class dual(object):
         im: imaginary part of dual number ("b" in "a + be"). Defaults to 0.
     """
     def __init__(self, re, im=0):
-        self.value = np.array([re, im])
+        self.re = re
+        self.im = im
         
     def __str__(self):
-        return f"{self.value[0]} + {self.value[1]}e"
+        return f"{self.re} + {self.im}e"
     
     def __repr__(self):
         return str(self)
     
     def __add__(self, other):
         if type(other) == dual:
-            re, im = self.value + other.value
-            return dual(re, im)
-        return dual(self.value[0] + other, self.value[1])
+            return dual(self.re + other.re, self.im + other.im)
+        return dual(self.re + other, self.im)
         
     def __radd__(self, other):
         return self.__add__(other)
     
     def __neg__(self):
-        re, im = -self.value
-        return dual(re, im)
+        return dual(-self.re, -self.im)
     
     def __sub__(self, other):
         if type(other) == dual:
-            re, im = self.value - other.value
-            return dual(re, im)
-        return dual(self.value[0] - other, self.value[1])
+            return dual(self.re - other.re, self.im - other.im)
+        return dual(self.re - other, self.im)
     
     def __rsub__(self, other):
         return -self.__sub__(other)
         
     def __mul__(self, other):
         if type(other) == dual:
-            return dual(self.value[0]*other.value[0], self.value[1]*other.value[0] + self.value[0]*other.value[1])
-        re, im = other*self.value
-        return dual(re, im)
+            return dual(self.re*other.re, self.im*other.re + self.re*other.im)
+        return dual(self.re*other, self.im*other)
         
     def __rmul__(self, other):
         return self.__mul__(other)
     
     def __truediv__(self, other):
         if type(other) == dual:
-            if np.isclose(other.value[0], 0):
+            if np.isclose(other.re, 0):
                 raise DivisionByZero("Real part of dual quotient must be non-zero")
-            return dual(self.value[0]/other.value[0], (self.value[1]*other.value[0] - self.value[0]*other.value[1])/other.value[0]**2)
-        re, im = self.value/other
-        return dual(re, im)
+            return dual(self.re/other.re, (self.im*other.re - self.re*other.im)/other.re**2)
+        return dual(self.re/other, self.im/other)
     
     def __rtruediv__(self, other):
         if type(other) == dual:
             return other.__truediv__(self)
-        return dual(other/self.value[0], other*self.value[1]/self.value[0]**2)
+        if np.isclose(self.re, 0):
+            raise DivisionByZero("Real part of dual quotient must be non-zero")
+        return dual(other/self.re, -other*self.im/self.re**2)
     
 if __name__ == "__main__":
     pass
