@@ -9,10 +9,10 @@ def newton(funcs, guess, iters=50):
         Parameters
         ----------
 
-        funcs: list
-            A list of functions.
-        guess: list
-            A list containing the initial guess for Newton's method.
+        funcs: function or list
+            A function or list of functions.
+        guess: number or list
+            The initial guess for Newton's method.
         iters: int
             The number of iterations before termination. Defaults to 50.
 
@@ -22,16 +22,15 @@ def newton(funcs, guess, iters=50):
         A numpy ndarray with approximation for root.
     """
     x = guess
-    for i in range(iters):
-        nmatrix = [TD.grad(f, x) for f in funcs]
-        x = x - np.matmul(np.linalg.inv(nmatrix), [f(*x) for f in funcs])
+    try:
+        for i in range(iters):
+            dmatrix = [TD.grad(f, x) for f in funcs]
+            x = x - np.matmul(np.linalg.inv(dmatrix), [f(*x) for f in funcs])
+    except TypeError:
+        for i in range(iters):
+            df = TD.oderiv1(f, x)
+            x = x - f(x)/df
     return x
 
 if __name__ == "__main__":
-    from AFuncs import*
-    f1 = lambda x, y: x*y
-    f2 = lambda x, y: pow(x, 2) + pow(y, 2)
-    x = newton([f1, f2], [2, 1])
-    print(x)
-    print(f1(*x))
-    print(f2(*x))
+    pass
