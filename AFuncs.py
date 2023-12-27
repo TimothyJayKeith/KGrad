@@ -31,7 +31,7 @@ def cos(x):
         Calculates cos(x), where x is a float or dual.
     """
     if type(x) == dual:
-        return dual(np.cos(x.re), -x.im*np.sin(x.im))
+        return dual(np.cos(x.re), -x.im*np.sin(x.re))
     return np.cos(x)
 
 if __name__ == "__main__":
