@@ -1,6 +1,3 @@
-import numpy as np
-from decimal import DivisionByZero
-
 class dual(object):
     """
         Class for dual numbers in python. These are numbers of the form
@@ -53,16 +50,12 @@ class dual(object):
     
     def __truediv__(self, other):
         if type(other) == dual:
-            if np.isclose(other.re, 0):
-                raise DivisionByZero("Real part of dual quotient must be non-zero")
             return dual(self.re/other.re, (self.im*other.re - self.re*other.im)/other.re**2)
         return dual(self.re/other, self.im/other)
     
     def __rtruediv__(self, other):
         if type(other) == dual:
             return other.__truediv__(self)
-        if np.isclose(self.re, 0):
-            raise DivisionByZero("Real part of dual quotient must be non-zero")
         return dual(other/self.re, -other*self.im/self.re**2)
     
 if __name__ == "__main__":
