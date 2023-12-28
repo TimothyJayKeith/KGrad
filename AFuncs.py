@@ -1,5 +1,5 @@
 import numpy as np
-from math import pow as rpow
+import math
 from HDual import dual
 
 def pow(x, p):
@@ -7,8 +7,8 @@ def pow(x, p):
         Calculates x^p, where x is a float or dual and p is an integer. Optimized for use with dual numbers.
     """
     if type(x) == dual:
-        return dual(rpow(x.re, p), x.im*p*rpow(x.re, p-1))
-    return rpow(x, p)
+        return dual(math.pow(x.re, p), x.im*p*math.pow(x.re, p-1))
+    return math.pow(x, p)
 
 def exp(x):
     """
