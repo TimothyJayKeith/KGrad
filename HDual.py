@@ -118,7 +118,7 @@ class hdual(object):
     
     def __mul__(self, other):
         if type(other) == hdual and other.dim == self.dim:
-            prod = np.zeros(self.dim)
+            prod = np.zeros(self.dim, dtype=self.value.dtype)
             for j in range(self.dim):
                 for k in range(self.dim - j):
                     prod[j + k] += comb(j + k, k)*self.value[j]*other.value[k]

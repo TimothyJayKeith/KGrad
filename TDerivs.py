@@ -7,6 +7,17 @@ def oderiv1(f, x):
     """
         Calculates the derivative of a function f at point x using automatic differentiation
         with dual numbers. The functions should be formed from the functions in AFuncs.
+
+        Parameters
+        ----------
+        f: function
+            The function to be differentiated.
+        x: float
+            The point at which f is differentiated.
+        
+        Returns
+        -------
+        The value of the derivative of f at point x.
     """
     return f(dual(x, 1)).im
 
@@ -33,7 +44,7 @@ def oderivn(f, x, n, return_lower_derivs=False):
         the function value at index 0 and derivative n at index n. Otherwise it just returns the value
         of derivative n.
     """
-    derivs = f(hdual([x, 1] + [0 for i in range(n - 1)]))
+    derivs = f(hdual([x, 1] + [0]*(n - 1)))
     if return_lower_derivs:
         return derivs.value
     return derivs[n]
