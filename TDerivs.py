@@ -124,4 +124,6 @@ def dderiv(f, inputs, direction=None):
     return np.dot(grad(f, inputs), direction)
 
 if __name__ == "__main__":
-    pass
+    from AFuncs import*
+    f = lambda x: sin(x)*exp(pow(x, 2))
+    print(oderivn(f, 1, 3))

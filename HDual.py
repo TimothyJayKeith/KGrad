@@ -98,7 +98,7 @@ class hdual(object):
         return self.__str__
     
     def __add__(self, other):
-        if type(other) == hdual and other.dim == self.dim: #TODO: deccide what to do when adding with dual numbers of different dimensions
+        if isinstance(other, hdual) and other.dim == self.dim: #TODO: decide what to do when adding with dual numbers of different dimensions
             return hdual(self.value + other.value)
         return hdual([self.value[0] + other, *self.value[1:]])
     
@@ -109,7 +109,7 @@ class hdual(object):
         return dual(-self.value)
     
     def __sub__(self, other):
-        if type(other) == hdual and other.dim == self.dim:
+        if isinstance(other, hdual) and other.dim == self.dim:
             return hdual(self.value - other.value)
         return hdual([self.value[0] - other, *self.value[1:]])
     
@@ -117,7 +117,7 @@ class hdual(object):
         return -self.__sub__(other)
     
     def __mul__(self, other):
-        if type(other) == hdual and other.dim == self.dim:
+        if isinstance(other, hdual) and other.dim == self.dim:
             prod = np.zeros(self.dim, dtype=self.value.dtype)
             for j in range(self.dim):
                 for k in range(self.dim - j):
@@ -132,7 +132,7 @@ class hdual(object):
         return hdual([self.value[0], *(-self.value[1:])])
     
     def __truediv__(self, other):
-        if type(other) == hdual and other.dim == self.dim:
+        if isinstance(other, hdual) and other.dim == self.dim:
             if other.is_real():
                 return hdual(self.value/other.value[0])
             else:
@@ -140,12 +140,26 @@ class hdual(object):
         return hdual(self.value/other)
     
     def __rtruediv__(self, other):
-        if type(other) == hdual and other.dim == self.dim:
+        if isinstance(other, hdual) and other.dim == self.dim:
             return other/self
         return (other*self.conj())/(self*self.conj())
     
     def __getitem__(self, item):
         return self.value[item]
+
+class hdual_basis(hdual):
+    def __init__(self, index, dim, component=1):
+        self.value = np.zeros(dim)
+        self.value[index] = component
+        self.index = index
+        self.dim = dim
+        self.component = component
+    
+    def __str__(self):
+        return f"{self.component}e{self.index}"
+    
+    def __repr__(self):
+        return self.__str__
 
 if __name__ == "__main__":
     pass
