@@ -1,14 +1,42 @@
 from logging import warning
 from typing import Iterable
-from HDual import dual
+from HDual import dual, hdual
 import numpy as np
 
 def oderiv1(f, x):
     """
         Calculates the derivative of a function f at point x using automatic differentiation
-        with dual numbers. The functions should be formed from the functions in this file.
+        with dual numbers. The functions should be formed from the functions in AFuncs.
     """
     return f(dual(x, 1)).im
+
+def oderivn(f, x, n, return_lower_derivs=False):
+    """
+        Calculates the nth derivative of a 1D function f at point x using automatic differentiation.
+        The function should be formed form the function in AFuncs.
+
+        Parameters
+        ----------
+        f: function
+            The function to be differentiated.
+        x: float
+            The point at which f is differentiated.
+        n: int
+            The order of derivative.
+        return_lower_derivs: bool
+            If True, returns an array with all derivatives lower than n along with the function value.
+            Defaults to False.
+        
+        Returns
+        -------
+        If return_lower_derivs is True, returns array with all the function derivatives starting with
+        the function value at index 0 and derivative n at index n. Otherwise it just returns the value
+        of derivative n.
+    """
+    derivs = f(hdual([x, 1] + [0 for i in range(n - 1)]))
+    if return_lower_derivs:
+        return derivs.value
+    return derivs[n]
 
 def pderiv1(f, inputs, partial_index=0):
     """
@@ -17,7 +45,6 @@ def pderiv1(f, inputs, partial_index=0):
 
         Parameters
         ----------
-
         f: function
             The function whose derivative is being calculated.
         inputs: list
@@ -86,6 +113,4 @@ def dderiv(f, inputs, direction=None):
     return np.dot(grad(f, inputs), direction)
 
 if __name__ == "__main__":
-    from AFuncs import*
-    f = lambda x, y: pow(x, 2) + pow(y, 2)
-    print(grad(f, [2, 1]))
+    pass

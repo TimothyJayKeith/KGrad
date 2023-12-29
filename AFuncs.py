@@ -1,11 +1,13 @@
 import numpy as np
 import math
-from HDual import dual
+from HDual import dual, hdual
 
 def pow(x, p):
     """
         Calculates x^p, where x is a float or dual and p is an integer. Optimized for use with dual numbers.
     """
+    if type(x) == hdual:
+        return np.prod([x for i in range(p)])
     if type(x) == dual:
         return dual(math.pow(x.re, p), x.im*p*math.pow(x.re, p-1))
     return math.pow(x, p)
@@ -35,4 +37,4 @@ def cos(x):
     return np.cos(x)
 
 if __name__ == "__main__":
-    pass
+    print(pow(hdual([2, 1, 0, 0, 0, 0, 0]), 5))

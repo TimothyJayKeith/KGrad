@@ -67,6 +67,9 @@ class dual(object):
             return other.__truediv__(self)
         return dual(other/self.re, -other*self.im/self.re**2)
     
+    def __getitem(self, item):
+        return [self.re, self.im][item]
+    
 class hdual(object):
     """
         Class for hyperdual numbers in Python. These are numbers of the form z_01 + z_1e1 + z_2e2 + ... + z_(n - 1)e(n - 1) + z_nen.
@@ -140,7 +143,9 @@ class hdual(object):
         if type(other) == hdual and other.dim == self.dim:
             return other/self
         return (other*self.conj())/(self*self.conj())
-
+    
+    def __getitem__(self, item):
+        return self.value[item]
 
 if __name__ == "__main__":
     pass
