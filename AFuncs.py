@@ -39,6 +39,8 @@ def sin(x):
         Calculates sin(x), where x is a float or dual.
     """
     if type(x) == hdual:
+        if x.dim == 1:
+            return sin(x[0])
         cexp = exp(1j*x, complex=True)
         return hdual([cexp[i].imag for i in range(x.dim)])
     if type(x) == dual:
@@ -50,6 +52,8 @@ def cos(x):
         Calculates cos(x), where x is a float or dual.
     """
     if type(x) == hdual:
+        if x.dim == 1:
+            return cos(x[0])
         cexp = exp(1j*x, complex=True)
         return hdual([cexp[i].real for i in range(x.dim)])
     if type(x) == dual:
@@ -57,4 +61,4 @@ def cos(x):
     return math.cos(x)
 
 if __name__ == "__main__":
-    print(exp(hdual([1, 2, 0, 0, 0])))
+    print(-sin(hdual([1, 1])))

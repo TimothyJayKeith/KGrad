@@ -106,7 +106,7 @@ class hdual(object):
         return self.__add__(other)
     
     def __neg__(self):
-        return dual(-self.value)
+        return hdual(-self.value)
     
     def __sub__(self, other):
         if isinstance(other, hdual) and other.dim == self.dim:
@@ -149,7 +149,7 @@ class hdual(object):
 
 class hdual_basis(hdual):
     def __init__(self, index, dim, component=1):
-        self.value = np.zeros(dim)
+        self.value = np.zeros(dim, dtype=type(component))
         self.value[index] = component
         self.index = index
         self.dim = dim
