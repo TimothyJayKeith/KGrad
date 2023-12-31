@@ -39,16 +39,19 @@ class tseries(object):
     def __repr__(self):
         return self.__str__
 
-def ssolve(coeff_funcs, initial_values=[], center=0, num_terms=5):
+def ssolve(h, g = lambda x: 0, initial_values=[], center=0, num_terms=5):
     """
         Produces a series solution for a linear ordinary differential equation (ODE) of the form 
-        f^(n)(x) + g_n(x)f^(n - 1)(x) + ... + g_2(x)f'(x) + g_1(x)f(x) = g_0(x)
+        f^(n)(x) + g(f^(n - 1)(x), f^(n - 2)(x), ..., f'(x), f(x), x) = h(x)
 
         Parameters
         ----------
-        coeff_funcs: function or list of functions.
-            The functions g_0, g_1, g_2, ..., g_n in the ODE above. if only a single
-            function is specified, it will simply return the Taylor series for that function.
+        h: function
+            The function on the right side of the ODE above.
+        g: function
+            The known function on the left hand side of the function above. The first input is the independent
+            variable and the others are the derivatives of the dependent variable. By default it is the zero 
+            function, which means the function will simply calculate the taylor series of h.
         intial_values: list
             A list of the initial values for f(x_0), f'(x_0), ..., f^(n - 1)(x_0). There should always
             be exactly one less initial value than coeff_func.
@@ -62,27 +65,16 @@ def ssolve(coeff_funcs, initial_values=[], center=0, num_terms=5):
         -------
         The taylor series of the function f in the ODE centered on x_0 in the form of a KGrad tseries object.
     """
-    try:
-        iter(coeff_funcs)
-    except TypeError:
-        return tseries(coeff_funcs, center=center, num_terms=num_terms)
-    if len(coeff_funcs) == 1:
-        return tseries(coeff_funcs[0])
-    
-    if len(initial_values) != len(coeff_funcs) - 1:
-        raise Exception("The number of initial values should be one less than the number of coefficient functions.")
     coeffs = initial_values.copy()
     if len(coeffs) >= num_terms:
         warnings.warn("Number of initial conditions equals or exceeds number of terms specified. Returning initial values only.")
-        return coeffs
+        return tseries(coeffs)
     
-    deriv_list = [center, 1] + [0]*(num_terms-len(coeffs)-1)
-    for i in range(num_terms - len(coeffs)):
-        tdual = hdual(deriv_list[0:i+1])
-        coeffs.append(np.sum([coeff_funcs[0](tdual)] +
-        [-coeff_funcs[j](tdual)*hdual(coeffs[j-1:j+i]) 
-         for j in range(1, len(coeff_funcs))])[i])
-    return tseries(coeffs, center=center)
+    coeffs.append(h(center) - g(center, *coeffs))
+    for i in range(1, num_terms - len(initial_values)):
+        x = hdual([center, 1] + [0]*(i - 1))
+        coeffs.append((h(x) - g(x, *[hdual(coeffs[j:j+i+1]) for j in range(len(initial_values))]))[i])
+    return tseries(coeffs)
         
 if __name__ == "__main__":
     pass
