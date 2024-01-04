@@ -1,7 +1,8 @@
 import numpy as np
+from warnings import warn
 from math import comb
 
-class dual(object):
+class dual(hdual):
     """
         Class for dual numbers in python. These are numbers of the form
         a + be where a and b are both real numbers and e^2=0, similar to
@@ -15,6 +16,8 @@ class dual(object):
     def __init__(self, re, im=0):
         self.re = re
         self.im = im
+        self.dim = 2
+        self.value = np.array([re, im])
 
     def is_real(self):
         if np.is_close(self.im, 0):
@@ -59,6 +62,8 @@ class dual(object):
     
     def __truediv__(self, other):
         if type(other) == dual:
+            if np.allclose([self.re, other.re], [0,0]):
+                return self.im/other.im
             return dual(self.re/other.re, (self.im*other.re - self.re*other.im)/other.re**2)
         return dual(self.re/other, self.im/other)
     
@@ -98,9 +103,13 @@ class hdual(object):
         return self.__str__
     
     def __add__(self, other):
-        if isinstance(other, hdual) and other.dim == self.dim: #TODO: decide what to do when adding with dual numbers of different dimensions
-            return hdual(self.value + other.value)
-        return hdual([self.value[0] + other, *self.value[1:]])
+        try:
+            l = sorted((self.value, other.value), key=len)
+            c = l[1].copy()
+            c[:len(l[0])] += l[0] #This code is meant to handle adding of arrays of unlike dimension. This is courtesy of Tobia Marucci. Try and find a faster way to do this.
+            return hdual(c)
+        except AttributeError:
+            return hdual([self.value[0] + other, *self.value[1:]])
     
     def __radd__(self, other):
         return self.__add__(other)
@@ -109,21 +118,23 @@ class hdual(object):
         return hdual(-self.value)
     
     def __sub__(self, other):
-        if isinstance(other, hdual) and other.dim == self.dim:
-            return hdual(self.value - other.value)
-        return hdual([self.value[0] - other, *self.value[1:]])
+        return self + -other
     
     def __rsub__(self, other):
         return -self.__sub__(other)
     
     def __mul__(self, other):
-        if isinstance(other, hdual) and other.dim == self.dim:
-            prod = np.zeros(self.dim, dtype=self.value.dtype)
+        try:
+            prod = np.zeros(max(self.dim, other.dim), dtype=self.value.dtype)
             for j in range(self.dim):
-                for k in range(self.dim - j):
-                    prod[j + k] += comb(j + k, k)*self.value[j]*other.value[k]
+                try:
+                    for k in range(max(self.dim - j, other.dim)):
+                        prod[j + k] += comb(j + k, k)*self.value[j]*other.value[k]
+                except IndexError:
+                    continue
             return hdual(prod)
-        return hdual(other*self.value)
+        except AttributeError:
+            return hdual(other*self.value)
     
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -132,12 +143,15 @@ class hdual(object):
         return hdual([self.value[0], *(-self.value[1:])])
     
     def __truediv__(self, other):
-        if isinstance(other, hdual) and other.dim == self.dim:
+        try:
+            if np.allclose([self[0], other[0]], [0, 0]):
+                warn("0/0 encountered. Handling automatically.")
+                return hdual(self[1:])/hdual(other[1:])
             if other.is_real():
-                return hdual(self.value/other.value[0])
-            else:
-                return (self*other.conj())/(other*other.conj())
-        return hdual(self.value/other)
+                return self/other[0]
+            return (self*other.conj())/(other*other.conj())
+        except IndexError:
+            return hdual(self.value/other)
     
     def __rtruediv__(self, other):
         if isinstance(other, hdual) and other.dim == self.dim:
@@ -162,4 +176,6 @@ class hdual_basis(hdual):
         return self.__str__
 
 if __name__ == "__main__":
-    pass
+    z = hdual([0, 1, 2, 3, 4, 5])
+    w = hdual([0, 2, 3])
+    print(z/w)
